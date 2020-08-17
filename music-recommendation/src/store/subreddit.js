@@ -32,7 +32,8 @@ const actions = {
     bindFirestoreRef('subreddits', db.collection('subreddits').where('name', '==', name));
   }),
   initPosts: firestoreAction(({ bindFirestoreRef }, subreddit_id) => {
-    bindFirestoreRef('posts', posts.where('subreddit_id', '==', subreddit_id));
+    bindFirestoreRef('posts', posts.where('subreddit_id', '==', subreddit_id).orderBy('created_at', 'desc'));
+    // bindFirestoreRef('posts', db.collection('posts').orderBy('created_at', 'desc'));
   }),
 };
 /* eslint-enable */
