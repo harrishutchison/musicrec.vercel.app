@@ -9,18 +9,20 @@
         outlined
       >Add Post</b-button>
     </section>
-    <form v-if='showForm && isLoggedIn' @submit.prevent='onCreatePost(post)' class='submit'>
-      <b-field label='Title (required)'>
-        <b-input v-model='post.title' required></b-input>
-      </b-field>
-      <b-field label='Link (required)'>
-        <b-input v-model='post.URL' type='url' required></b-input>
-      </b-field>
-      <b-field label='Description'>
-        <b-input type='textarea' v-model='post.description'></b-input>
-      </b-field>
-      <button class='button is-success'>Submit</button>
-    </form>
+      <form
+      ref="observer" v-if='showForm && isLoggedIn'
+      @submit.prevent='onCreatePost(post)' class='submit'>
+        <b-field label='Title (required)'>
+          <b-input v-model='post.title' required></b-input>
+        </b-field>
+          <b-field label='Link (required)'>
+            <b-input v-model='post.URL' type='url' required></b-input>
+          </b-field>
+        <b-field label='Description'>
+          <b-input type='textarea' v-model='post.description'></b-input>
+        </b-field>
+        <button class='button is-success'>Submit</button>
+      </form>
     <form class="formButton">
         <b-field label="Search">
             <b-input v-model="searchTerm"></b-input>
@@ -40,10 +42,24 @@
                posted by {{loadedUsersById[post.user_id].name}}
             </small>
             <small>{{getCreated(index)}}</small>
+            <button
+            @click="deletePost(post.id)"
+            v-if="user && (user.id == post.user_id) || (user.id == 'no5NcnC9JyeIDxaHhjXD3M7l5c63')"
+            class='right-side button is-danger'>
+              Delete
+            </button>
             <br />
             <a :href='post.URL' target='_blank'>{{post.URL}}</a>
             <br />
             {{post.description}}
+            <br />
+            <!--<router-link :to="{
+              name: 'post',
+              params: {
+                name: $route.params.name,
+                post_id: post.id
+              }
+            }" class='right-side button is-success'>View post</router-link>-->
           </p>
         </div>
         <nav class='level is-mobile'>
@@ -76,6 +92,9 @@
 }
 .submit {
   padding: 0em 4em 2em 4em;
+}
+.right-side {
+  float: right;
 }
 </style>
 
@@ -138,17 +157,29 @@ export default {
     /* eslint-enable */
   },
   methods: {
-    ...mapActions('subreddit', ['createPost', 'initSubreddit', 'initPosts']),
+    ...mapActions('subreddit', ['createPost', 'initSubreddit', 'initPosts', 'deletePost']),
     ...mapActions('users', { initUsers: 'init' }),
     async onCreatePost() {
       if (this.post.title && (this.post.description || this.post.URL)) {
-        this.createPost(this.post);
-        this.post = {
-          title: '',
-          description: '',
-          URL: '',
-        };
-        this.showForm = false;
+        if (this.post.URL.includes('youtube.com/watch?v=')
+        || this.post.URL.includes('open.spotify.com/')
+        || this.post.URL.includes('soundcloud.com/')
+        || this.post.URL.includes('youtu.be/')
+        || this.post.URL.includes('tidal.com/browse')
+        || this.post.URL.includes('music.amazon.co.uk/')
+        || this.post.URL.includes('music.amazon.com/')
+        || this.post.URL.includes('music.apple.com/')) {
+          this.createPost(this.post);
+          this.post = {
+            title: '',
+            description: '',
+            URL: '',
+          };
+          this.showForm = false;
+        } else {
+          // eslint-disable-next-line
+          alert('This does not link to a verified music source.');
+        }
       }
     },
     getCreated(index) {

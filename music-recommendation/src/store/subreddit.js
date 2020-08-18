@@ -28,12 +28,14 @@ const actions = {
       console.error(error);
     }
   },
+  async deletePost(_, post_id) {
+    await posts.doc(post_id).delete();
+  },
   initSubreddit: firestoreAction(({ bindFirestoreRef }, name) => {
     bindFirestoreRef('subreddits', db.collection('subreddits').where('name', '==', name));
   }),
   initPosts: firestoreAction(({ bindFirestoreRef }, subreddit_id) => {
     bindFirestoreRef('posts', posts.where('subreddit_id', '==', subreddit_id).orderBy('created_at', 'desc'));
-    // bindFirestoreRef('posts', db.collection('posts').orderBy('created_at', 'desc'));
   }),
 };
 /* eslint-enable */
